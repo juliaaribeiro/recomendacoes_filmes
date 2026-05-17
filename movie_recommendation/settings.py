@@ -45,9 +45,6 @@ INSTALLED_APPS = [
     'comments',
     'favorites',
     'watchlist',
-    'interactions',
-    'recommendations',
-    'platforms',
 ]
 
 AUTH_USER_MODEL = 'users.User'

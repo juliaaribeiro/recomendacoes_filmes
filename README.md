@@ -98,13 +98,9 @@ web/
 │   ├── serializers.py
 │   └── urls.py
 ├── movies/                  # App de Filmes (TMDB API)
-├── ratings/                 # App de Avaliações (removida - integrada aos comentários)
 ├── comments/                # App de Comentários
 ├── favorites/               # App de Favoritos
 ├── watchlist/               # App de Watchlist
-├── interactions/            # App de Histórico
-├── recommendations/         # App de Recomendações
-├── platforms/               # App de Plataformas
 ├── frontend/                # Vue.js Frontend
 │   ├── src/
 │   │   ├── components/      # Componentes Vue
