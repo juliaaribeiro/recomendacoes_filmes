@@ -6,18 +6,6 @@ export const apiClient = axios.create({
   baseURL: BACKEND_URL,
 })
 
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
-
-  console.log('TOKEN ENVIADO:', token)
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-
-  return config
-})
-
 // Interceptor para adicionar token em todas as requisições
 apiClient.interceptors.request.use(
   (config) => {

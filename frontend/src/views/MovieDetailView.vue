@@ -64,10 +64,12 @@ onMounted(async () => {
 const fetchComments = async () => {
   try {
     const { data } = await apiClient.get(`/comentarios/?filme=${route.params.id}`)
-    // Handle both paginated and non-paginated responses
     comments.value = data.results ? data.results : (Array.isArray(data) ? data : [])
-  } catch (err) {
-    console.error(err)
+  } catch (err: any) {
+    // Visitantes não autenticados recebem 401 — exibe lista vazia sem erro
+    if (err.response?.status !== 401) {
+      console.error(err)
+    }
     comments.value = []
   }
 }
