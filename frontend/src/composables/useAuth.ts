@@ -14,10 +14,11 @@ export function useAuth() {
     }
   }
 
-  const login = (userData: any, token: string) => {
+  const login = (userData: any, token: string, refreshToken?: string) => {
     user.value = userData
     localStorage.setItem('user', JSON.stringify(userData))
     localStorage.setItem('access_token', token)
+    if (refreshToken) localStorage.setItem('refresh_token', refreshToken)
   }
 
   const logout = () => {

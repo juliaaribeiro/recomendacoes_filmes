@@ -46,6 +46,13 @@ function handleLogout() {
           <template v-if="isLogged">
             <router-link to="/meus-favoritos">❤️ Favoritos</router-link>
             <router-link to="/minha-watchlist">📋 Watchlist</router-link>
+            <router-link 
+              v-if="user?.tipo_usuario === 'admin' || user?.is_staff"
+              to="/admin-dashboard"
+              style="background: linear-gradient(135deg, #a78bfa, #7c3aed); color: white; padding: 6px 14px; border-radius: 999px; font-weight: 700;"
+            >
+              ⚙️ Admin
+            </router-link>
 
             <!-- BLOCO DO USUÁRIO (AGORA COM GLASS IGUAL AO HEADER) -->
             <div 

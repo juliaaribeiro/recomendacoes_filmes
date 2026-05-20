@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from users.stats_views import AdminStatsView
 
 def api_root(request):
     return JsonResponse({'message': 'MovieFlix API v1', 'status': 'ok'})
@@ -24,6 +25,7 @@ def api_root(request):
 urlpatterns = [
     path('', api_root),
     path('admin/', admin.site.urls),
+    path('admin-stats/', AdminStatsView.as_view()),
     path('usuarios/', include('users.urls')),
     path('filmes/', include('movies.urls')),
     path('comentarios/', include('comments.urls')),

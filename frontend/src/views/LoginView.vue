@@ -33,7 +33,7 @@ const handleLogin = async () => {
     localStorage.setItem('refresh_token', response.data.refresh)
 
     // Usar composable para salvar e atualizar estado
-    login(response.data.user, response.data.access)
+    login(response.data.user, response.data.access, response.data.refresh)
 
     // Redirecionar para home
     router.push('/')

@@ -45,6 +45,9 @@ const router = createRouter({
       name: 'watchlist',
       component: WatchlistView,
     },
+    { path: '/admin-dashboard', 
+      component: () => import('../views/AdminDashboard.vue') 
+    },
   ],
 })
 
