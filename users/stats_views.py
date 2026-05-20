@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
@@ -12,7 +12,7 @@ from watchlist.models import Watchlist
 User = get_user_model()
 
 class AdminStatsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get(self, request):
         agora = timezone.now()
@@ -41,8 +41,9 @@ class AdminStatsView(APIView):
         total_comentarios = Comentario.objects.count()
         comentarios_hoje = Comentario.objects.filter(data_comentario__date=hoje).count()
         comentarios_7_dias = Comentario.objects.filter(data_comentario__gte=ultimos_7_dias).count()
-        media_nota = Comentario.objects.values_list('nota', flat=True)
-        media_nota_valor = round(sum(media_nota) / len(media_nota), 1) if media_nota else 0
+        notas = list(Comentario.objects.values_list('nota', flat=True))
+        notas_validas = [nota for nota in notas if nota is not None]
+        media_nota_valor = round(sum(notas_validas) / len(notas_validas), 1) if notas_validas else 0
 
         # Favoritos
         total_favoritos = Favorito.objects.count()
