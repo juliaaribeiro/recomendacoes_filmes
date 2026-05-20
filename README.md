@@ -95,6 +95,7 @@ web/
 ├── users/                   # App de Usuários
 │   ├── models.py
 │   ├── views.py
+│   ├── stats_views.py       # Dashboard de estatísticas (admin)
 │   ├── serializers.py
 │   └── urls.py
 ├── movies/                  # App de Filmes (TMDB API)
@@ -105,8 +106,10 @@ web/
 │   ├── src/
 │   │   ├── components/      # Componentes Vue
 │   │   ├── views/           # Páginas
+│   │   │   └── AdminDashboard.vue  # Painel administrativo
 │   │   ├── router/          # Configuração de rotas
-│   │   └── utils/           # Utilidades
+│   │   ├── composables/     # useAuth, useHoverStyle
+│   │   └── utils/           # axiosConfig, api
 │   └── package.json
 └── manage.py
 ```
@@ -134,10 +137,15 @@ web/
 ### Favoritos (Autenticado)
 - `GET /favoritos/` - Meus favoritos
 - `POST /favoritos/` - Adicionar favorito
+- `DELETE /favoritos/{id}/` - Remover favorito
 
 ### Watchlist (Autenticado)
 - `GET /watchlist/` - Minha watchlist
 - `POST /watchlist/` - Adicionar à watchlist
+- `DELETE /watchlist/{id}/` - Remover da watchlist
+
+### Admin (Autenticado como admin)
+- `GET /admin-stats/` - Estatísticas do dashboard
 
 ## 🔑 Variáveis de Ambiente
 
@@ -160,6 +168,9 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 | `/movie/:id` | MovieDetailView | Detalhes do filme |
 | `/login` | LoginView | Página de login |
 | `/register` | RegisterView | Página de cadastro |
+| `/meus-favoritos` | FavoritesView | Lista de favoritos |
+| `/minha-watchlist` | WatchlistView | Lista da watchlist |
+| `/admin-dashboard` | AdminDashboard | Painel administrativo |
 
 ## 🎨 Paleta de Cores
 
