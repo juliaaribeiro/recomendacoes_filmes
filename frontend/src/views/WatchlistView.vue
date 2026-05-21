@@ -32,6 +32,19 @@ const removeFromWatchlist = async (id: number) => {
   }
 }
 
+const toggleWatched = async (movie: any) => {
+  try {
+    await apiClient.patch(`/watchlist/${movie.id}/`, {
+      assistido: !movie.assistido,
+    })
+    watchlist.value = watchlist.value.map(w =>
+      w.id === movie.id ? { ...w, assistido: !w.assistido } : w
+    )
+  } catch (error) {
+    alert('Erro ao atualizar status de assistido')
+  }
+}
+
 const adjustScale = (event: MouseEvent, hover: boolean) => {
   const target = event.target as HTMLElement | null
   if (target) {
@@ -171,6 +184,36 @@ onMounted(fetchWatchlist)
             <h3 style="color: white; font-size: 15px; font-weight: bold; margin-bottom: 10px;">
               {{ movie.titulo }}
             </h3>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+              <span
+                :style="{
+                  padding: '6px 10px',
+                  borderRadius: '999px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: movie.assistido ? '#10b981' : '#fbbf24',
+                  background: movie.assistido ? 'rgba(16,185,129,0.14)' : 'rgba(251,191,36,0.14)',
+                }"
+              >
+                {{ movie.assistido ? 'Assistido' : 'Não assistido' }}
+              </span>
+
+              <button
+                @click.stop="toggleWatched(movie)"
+                style="
+                  background: transparent;
+                  border: 1px solid rgba(255,255,255,0.15);
+                  color: white;
+                  padding: 7px 12px;
+                  border-radius: 999px;
+                  cursor: pointer;
+                  font-size: 12px;
+                "
+              >
+                {{ movie.assistido ? 'Marcar como não assistido' : 'Marcar como assistido' }}
+              </button>
+            </div>
 
             <button
               @click="router.push(`/movie/${movie.filme_id}`)"

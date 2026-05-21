@@ -23,6 +23,7 @@ def api_root(request):
     return JsonResponse({'message': 'MovieFlix API v1', 'status': 'ok'})
 
 urlpatterns = [
+    path('grappelli/', include('grappelli.urls')),
     path('', api_root),
     path('admin/', admin.site.urls),
     path('admin-stats/', AdminStatsView.as_view()),

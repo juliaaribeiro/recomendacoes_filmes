@@ -17,7 +17,7 @@ class WatchlistListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
 
-class WatchlistDetailView(generics.RetrieveDestroyAPIView):
+class WatchlistDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WatchlistSerializer
     permission_classes = [IsAuthenticated]
 
