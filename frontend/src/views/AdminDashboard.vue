@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import { apiClient } from '../utils/axiosConfig'
@@ -13,20 +13,16 @@ const error = ref('')
 const activeTab = ref<'overview' | 'usuarios' | 'conteudo'>('overview')
 
 onMounted(async () => {
-  if (!isLogged.value) {
-    router.push('/login')
-    return
-  }
+  if (!isLogged.value) { router.push('/login'); return }
   await fetchStats()
 })
 
 const fetchStats = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true; error.value = ''
   try {
     const { data } = await apiClient.get('/admin-stats/')
     stats.value = data
-  } catch (err: any) {
+  } catch {
     error.value = 'Erro ao carregar estatísticas. Verifique se você tem permissão de administrador.'
   } finally {
     loading.value = false
@@ -50,242 +46,212 @@ const formatDate = (dateStr: string) => {
 </script>
 
 <template>
-  <div class="admin-root">
+  <div class="d-flex" style="min-height:100vh;background:#0d0d14;color:#e8e6f0">
+
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <span class="logo-icon">🎬</span>
+    <aside class="d-flex flex-column p-3" style="width:240px;background:#13131f;border-right:1px solid #1e1e30;position:sticky;top:0;height:100vh">
+      <div class="d-flex align-items-center gap-2 mb-4 px-2">
+        <span style="font-size:28px">🎬</span>
         <div>
-          <div class="logo-title">MovieFlix</div>
-          <div class="logo-sub">Painel Admin</div>
+          <div class="fw-bold text-white" style="font-size:15px">MovieFlix</div>
+          <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px">Painel Admin</div>
         </div>
       </div>
 
-      <nav class="sidebar-nav">
-        <button :class="['nav-item', activeTab === 'overview' && 'active']" @click="activeTab = 'overview'">
-          <span>📊</span> Visão Geral
-        </button>
-        <button :class="['nav-item', activeTab === 'usuarios' && 'active']" @click="activeTab = 'usuarios'">
-          <span>👥</span> Usuários
-        </button>
-        <button :class="['nav-item', activeTab === 'conteudo' && 'active']" @click="activeTab = 'conteudo'">
-          <span>🎥</span> Conteúdo
+      <nav class="d-flex flex-column gap-1 flex-grow-1">
+        <button
+          v-for="tab in [{ id:'overview', label:'📊 Visão Geral' }, { id:'usuarios', label:'👥 Usuários' }, { id:'conteudo', label:'🎥 Conteúdo' }]"
+          :key="tab.id"
+          @click="activeTab = tab.id as any"
+          class="btn text-start px-3 py-2 rounded-2 border-0 fw-medium"
+          :style="{
+            background: activeTab === tab.id ? 'linear-gradient(135deg,rgba(102,126,234,0.15),rgba(118,75,162,0.15))' : 'none',
+            color: activeTab === tab.id ? '#a78bfa' : '#888',
+            fontSize: '14px'
+          }"
+        >
+          {{ tab.label }}
         </button>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="admin-badge">
+      <div class="mt-auto">
+        <div class="d-flex align-items-center gap-2 p-2 rounded-2 mb-2" style="background:#1a1a2e;font-size:13px">
           <span>⚙️</span>
           <div>
-            <div class="admin-name">{{ user?.nome || user?.email }}</div>
-            <div class="admin-role">Administrador</div>
+            <div class="fw-medium" style="color:#ddd">{{ user?.nome || user?.email }}</div>
+            <div style="font-size:11px;color:#666">Administrador</div>
           </div>
         </div>
-        <button class="btn-voltar" @click="router.push('/')">← Voltar ao site</button>
+        <button @click="router.push('/')" class="btn w-100 py-1" style="border:1px solid #2a2a40;color:#666;font-size:13px;background:none">
+          ← Voltar ao site
+        </button>
       </div>
     </aside>
 
-    <!-- Main content -->
-    <main class="main-content">
+    <!-- Main -->
+    <main class="flex-grow-1 p-4" style="overflow-y:auto">
+
       <!-- Loading -->
-      <div v-if="loading" class="center-state">
-        <div class="spinner"></div>
+      <div v-if="loading" class="d-flex flex-column align-items-center justify-content-center" style="min-height:400px;gap:16px;color:#555">
+        <div class="mf-spinner" style="border-top-color:#a78bfa"></div>
         <p>Carregando dados...</p>
       </div>
 
-      <!-- Error -->
-      <div v-else-if="error" class="center-state error-state">
+      <!-- Erro -->
+      <div v-else-if="error" class="d-flex flex-column align-items-center justify-content-center gap-3" style="min-height:400px;color:#f87171">
         <div style="font-size:48px">⚠️</div>
         <p>{{ error }}</p>
-        <button class="btn-primary" @click="fetchStats">Tentar novamente</button>
+        <button @click="fetchStats" class="btn px-4 py-2 fw-semibold" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:8px">
+          Tentar novamente
+        </button>
       </div>
 
       <template v-else-if="stats">
 
         <!-- VISÃO GERAL -->
         <div v-if="activeTab === 'overview'">
-          <div class="page-header">
-            <h1>Visão Geral</h1>
-            <button class="btn-refresh" @click="fetchStats">↻ Atualizar</button>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-white mb-0" style="font-size:26px">Visão Geral</h1>
+            <button @click="fetchStats" class="btn btn-sm px-3" style="background:#1a1a2e;border:1px solid #2a2a40;color:#888;font-size:13px">↻ Atualizar</button>
           </div>
 
-          <!-- Cards principais -->
-          <div class="cards-grid">
-            <div class="stat-card blue">
-              <div class="stat-icon">👥</div>
-              <div class="stat-value">{{ stats.usuarios.total }}</div>
-              <div class="stat-label">Usuários cadastrados</div>
-              <div class="stat-sub">+{{ stats.usuarios.hoje }} hoje</div>
-            </div>
-            <div class="stat-card purple">
-              <div class="stat-icon">💬</div>
-              <div class="stat-value">{{ stats.comentarios.total }}</div>
-              <div class="stat-label">Comentários</div>
-              <div class="stat-sub">Nota média: ⭐ {{ stats.comentarios.media_nota }}/10</div>
-            </div>
-            <div class="stat-card red">
-              <div class="stat-icon">❤️</div>
-              <div class="stat-value">{{ stats.favoritos.total }}</div>
-              <div class="stat-label">Favoritos</div>
-              <div class="stat-sub">+{{ stats.favoritos.ultimos_7_dias }} esta semana</div>
-            </div>
-            <div class="stat-card green">
-              <div class="stat-icon">📋</div>
-              <div class="stat-value">{{ stats.watchlist.total }}</div>
-              <div class="stat-label">Watchlist</div>
-              <div class="stat-sub">{{ taxaAssistidos }}% assistidos</div>
-            </div>
-          </div>
-
-          <!-- Gráfico de cadastros -->
-          <div class="section-card">
-            <h2>📈 Cadastros nos últimos 7 dias</h2>
-            <div class="bar-chart">
-              <div
-                v-for="dia in stats.usuarios.cadastros_por_dia"
-                :key="dia.dia"
-                class="bar-col"
-              >
-                <div class="bar-value">{{ dia.total }}</div>
-                <div
-                  class="bar-fill"
-                  :style="{ height: `${Math.max((dia.total / maxCadastros) * 100, 4)}%` }"
-                ></div>
-                <div class="bar-label">{{ dia.dia }}</div>
+          <!-- Cards -->
+          <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
+            <div class="col" v-for="card in [
+              { color:'#667eea,#764ba2', icon:'👥', value: stats.usuarios.total, label:'Usuários', sub:`+${stats.usuarios.hoje} hoje` },
+              { color:'#a78bfa,#7c3aed', icon:'💬', value: stats.comentarios.total, label:'Comentários', sub:`Nota média: ⭐ ${stats.comentarios.media_nota}/10` },
+              { color:'#f87171,#dc2626', icon:'❤️', value: stats.favoritos.total, label:'Favoritos', sub:`+${stats.favoritos.ultimos_7_dias} esta semana` },
+              { color:'#34d399,#059669', icon:'📋', value: stats.watchlist.total, label:'Watchlist', sub:`${taxaAssistidos}% assistidos` },
+            ]" :key="card.label">
+              <div class="p-3 rounded-3 position-relative overflow-hidden" style="background:#13131f;border:1px solid #1e1e30">
+                <div class="position-absolute top-0 start-0 end-0" :style="{ height:'3px', background:`linear-gradient(90deg,${card.color})` }"></div>
+                <div class="mb-2" style="font-size:22px">{{ card.icon }}</div>
+                <div class="fw-bold text-white mb-1" style="font-size:28px">{{ card.value }}</div>
+                <div style="font-size:13px;color:#666">{{ card.label }}</div>
+                <div style="font-size:12px;color:#4ade80;margin-top:4px">{{ card.sub }}</div>
               </div>
             </div>
           </div>
 
-          <!-- Watchlist progress -->
-          <div class="section-card">
-            <h2>📋 Status da Watchlist</h2>
-            <div class="progress-row">
-              <span>Assistidos ({{ stats.watchlist.assistidos }})</span>
-              <div class="progress-bar">
-                <div class="progress-fill green-fill" :style="{ width: taxaAssistidos + '%' }"></div>
+          <!-- Gráfico cadastros -->
+          <div class="p-4 rounded-3 mb-4" style="background:#13131f;border:1px solid #1e1e30">
+            <h2 class="fw-bold mb-4" style="font-size:15px;color:#ddd">📈 Cadastros nos últimos 7 dias</h2>
+            <div class="d-flex align-items-end gap-2" style="height:140px">
+              <div v-for="dia in stats.usuarios.cadastros_por_dia" :key="dia.dia" class="d-flex flex-column align-items-center flex-grow-1" style="height:100%;justify-content:flex-end;gap:6px">
+                <span style="font-size:12px;color:#888">{{ dia.total }}</span>
+                <div :style="{ height:`${Math.max((dia.total/maxCadastros)*100,4)}%`, background:'linear-gradient(180deg,#a78bfa,#667eea)', borderRadius:'4px 4px 0 0', width:'100%', minHeight:'4px', transition:'height 0.5s' }"></div>
+                <span style="font-size:11px;color:#555">{{ dia.dia }}</span>
               </div>
-              <span>{{ taxaAssistidos }}%</span>
             </div>
-            <div class="progress-row">
-              <span>Pendentes ({{ stats.watchlist.pendentes }})</span>
-              <div class="progress-bar">
-                <div class="progress-fill gray-fill" :style="{ width: (100 - taxaAssistidos) + '%' }"></div>
+          </div>
+
+          <!-- Progress watchlist -->
+          <div class="p-4 rounded-3" style="background:#13131f;border:1px solid #1e1e30">
+            <h2 class="fw-bold mb-3" style="font-size:15px;color:#ddd">📋 Status da Watchlist</h2>
+            <div v-for="row in [
+              { label: `Assistidos (${stats.watchlist.assistidos})`, pct: taxaAssistidos, color: 'linear-gradient(90deg,#34d399,#059669)' },
+              { label: `Pendentes (${stats.watchlist.pendentes})`, pct: 100-taxaAssistidos, color: '#2a2a40' },
+            ]" :key="row.label" class="d-flex align-items-center gap-3 mb-2" style="font-size:13px;color:#888">
+              <span style="min-width:160px">{{ row.label }}</span>
+              <div class="flex-grow-1 rounded-pill overflow-hidden" style="height:8px;background:#1e1e30">
+                <div :style="{ width:row.pct+'%', height:'100%', background:row.color, borderRadius:'999px', transition:'width 0.5s' }"></div>
               </div>
-              <span>{{ 100 - taxaAssistidos }}%</span>
+              <span>{{ row.pct }}%</span>
             </div>
           </div>
         </div>
 
         <!-- USUÁRIOS -->
         <div v-if="activeTab === 'usuarios'">
-          <div class="page-header">
-            <h1>Usuários</h1>
-          </div>
-
-          <div class="cards-grid">
-            <div class="stat-card blue">
-              <div class="stat-icon">👥</div>
-              <div class="stat-value">{{ stats.usuarios.total }}</div>
-              <div class="stat-label">Total</div>
-            </div>
-            <div class="stat-card purple">
-              <div class="stat-icon">📅</div>
-              <div class="stat-value">{{ stats.usuarios.ultimos_7_dias }}</div>
-              <div class="stat-label">Últimos 7 dias</div>
-            </div>
-            <div class="stat-card green">
-              <div class="stat-icon">🟢</div>
-              <div class="stat-value">{{ stats.usuarios.ativos_semana }}</div>
-              <div class="stat-label">Ativos esta semana</div>
-            </div>
-            <div class="stat-card orange">
-              <div class="stat-icon">🗓️</div>
-              <div class="stat-value">{{ stats.usuarios.ultimos_30_dias }}</div>
-              <div class="stat-label">Últimos 30 dias</div>
+          <h1 class="fw-bold text-white mb-4" style="font-size:26px">Usuários</h1>
+          <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
+            <div class="col" v-for="card in [
+              { color:'#667eea,#764ba2', icon:'👥', value: stats.usuarios.total, label:'Total' },
+              { color:'#a78bfa,#7c3aed', icon:'📅', value: stats.usuarios.ultimos_7_dias, label:'Últimos 7 dias' },
+              { color:'#34d399,#059669', icon:'🟢', value: stats.usuarios.ativos_semana, label:'Ativos esta semana' },
+              { color:'#fb923c,#ea580c', icon:'🗓️', value: stats.usuarios.ultimos_30_dias, label:'Últimos 30 dias' },
+            ]" :key="card.label">
+              <div class="p-3 rounded-3 position-relative overflow-hidden" style="background:#13131f;border:1px solid #1e1e30">
+                <div class="position-absolute top-0 start-0 end-0" :style="{ height:'3px', background:`linear-gradient(90deg,${card.color})` }"></div>
+                <div class="mb-2" style="font-size:22px">{{ card.icon }}</div>
+                <div class="fw-bold text-white mb-1" style="font-size:28px">{{ card.value }}</div>
+                <div style="font-size:13px;color:#666">{{ card.label }}</div>
+              </div>
             </div>
           </div>
 
-          <div class="section-card">
-            <h2>👤 Usuários recentes</h2>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Nome</th>
-                  <th>Email</th>
-                  <th>Tipo</th>
-                  <th>Cadastro</th>
-                  <th>Último login</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="u in stats.usuarios.recentes" :key="u.id">
-                  <td class="muted">{{ u.id }}</td>
-                  <td>{{ u.nome || '—' }}</td>
-                  <td class="muted">{{ u.email }}</td>
-                  <td>
-                    <span :class="['tipo-badge', u.tipo_usuario === 'admin' ? 'admin' : 'user']">
-                      {{ u.tipo_usuario || 'user' }}
-                    </span>
-                  </td>
-                  <td class="muted">{{ formatDate(u.data_criacao) }}</td>
-                  <td class="muted">{{ formatDate(u.last_login) }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="p-4 rounded-3" style="background:#13131f;border:1px solid #1e1e30">
+            <h2 class="fw-bold mb-3" style="font-size:15px;color:#ddd">👤 Usuários recentes</h2>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover mb-0" style="font-size:13px;--bs-table-bg:#13131f;--bs-table-border-color:#1e1e30">
+                <thead>
+                  <tr style="color:#555;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">
+                    <th>#</th><th>Nome</th><th>Email</th><th>Tipo</th><th>Cadastro</th><th>Último login</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="u in stats.usuarios.recentes" :key="u.id">
+                    <td style="color:#555">{{ u.id }}</td>
+                    <td>{{ u.nome || '—' }}</td>
+                    <td style="color:#555">{{ u.email }}</td>
+                    <td>
+                      <span class="badge rounded-pill px-2" :style="u.tipo_usuario==='admin' ? 'background:rgba(124,58,237,0.13);color:#a78bfa' : 'background:#0e4a2a;color:#4ade80'">
+                        {{ u.tipo_usuario || 'user' }}
+                      </span>
+                    </td>
+                    <td style="color:#555">{{ formatDate(u.data_criacao) }}</td>
+                    <td style="color:#555">{{ formatDate(u.last_login) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         <!-- CONTEÚDO -->
         <div v-if="activeTab === 'conteudo'">
-          <div class="page-header">
-            <h1>Conteúdo</h1>
-          </div>
+          <h1 class="fw-bold text-white mb-4" style="font-size:26px">Conteúdo</h1>
 
-          <div class="two-cols">
-            <div class="section-card">
-              <h2>❤️ Filmes mais favoritados</h2>
-              <div v-if="stats.favoritos.top_filmes.length === 0" class="empty">Nenhum dado ainda</div>
-              <div v-for="(filme, i) in stats.favoritos.top_filmes" :key="filme.filme_id" class="rank-item">
-                <span class="rank-num">{{ Number(i) + 1 }}</span>
-                <span class="rank-title">{{ filme.titulo || `Filme #${filme.filme_id}` }}</span>
-                <span class="rank-count">{{ filme.total }} ❤️</span>
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6">
+              <div class="p-4 rounded-3 h-100" style="background:#13131f;border:1px solid #1e1e30">
+                <h2 class="fw-bold mb-3" style="font-size:15px;color:#ddd">❤️ Filmes mais favoritados</h2>
+                <p v-if="stats.favoritos.top_filmes.length === 0" style="color:#444;font-size:13px">Nenhum dado ainda</p>
+                <div v-for="(filme, i) in stats.favoritos.top_filmes" :key="filme.filme_id" class="d-flex align-items-center gap-3 py-2" style="border-bottom:1px solid #1a1a2a">
+                  <span class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0" style="width:24px;height:24px;background:#1e1e30;color:#666;font-size:12px">{{ Number(i)+1 }}</span>
+                  <span class="flex-grow-1" style="font-size:14px;color:#ccc">{{ filme.titulo || `Filme #${filme.filme_id}` }}</span>
+                  <span style="font-size:13px;color:#888">{{ filme.total }} ❤️</span>
+                </div>
               </div>
             </div>
-
-            <div class="section-card">
-              <h2>💬 Filmes mais comentados</h2>
-              <div v-if="stats.watchlist.top_filmes.length === 0" class="empty">Nenhum dado ainda</div>
-              <div v-for="(filme, i) in stats.watchlist.top_filmes" :key="filme.filme_id" class="rank-item">
-                <span class="rank-num">{{ Number(i) + 1 }}</span>
-                <span class="rank-title">{{ filme.titulo || `Filme #${filme.filme_id}` }}</span>
-                <span class="rank-count">{{ filme.total }} 💬</span>
+            <div class="col-12 col-md-6">
+              <div class="p-4 rounded-3 h-100" style="background:#13131f;border:1px solid #1e1e30">
+                <h2 class="fw-bold mb-3" style="font-size:15px;color:#ddd">💬 Filmes mais na watchlist</h2>
+                <p v-if="stats.watchlist.top_filmes.length === 0" style="color:#444;font-size:13px">Nenhum dado ainda</p>
+                <div v-for="(filme, i) in stats.watchlist.top_filmes" :key="filme.filme_id" class="d-flex align-items-center gap-3 py-2" style="border-bottom:1px solid #1a1a2a">
+                  <span class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0" style="width:24px;height:24px;background:#1e1e30;color:#666;font-size:12px">{{ Number(i)+1 }}</span>
+                  <span class="flex-grow-1" style="font-size:14px;color:#ccc">{{ filme.titulo || `Filme #${filme.filme_id}` }}</span>
+                  <span style="font-size:13px;color:#888">{{ filme.total }} 💬</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="section-card">
-            <h2>💬 Comentários</h2>
-            <div class="cards-grid" style="margin-top:16px">
-              <div class="stat-card purple">
-                <div class="stat-icon">💬</div>
-                <div class="stat-value">{{ stats.comentarios.total }}</div>
-                <div class="stat-label">Total</div>
-              </div>
-              <div class="stat-card blue">
-                <div class="stat-icon">📅</div>
-                <div class="stat-value">{{ stats.comentarios.hoje }}</div>
-                <div class="stat-label">Hoje</div>
-              </div>
-              <div class="stat-card green">
-                <div class="stat-icon">⭐</div>
-                <div class="stat-value">{{ stats.comentarios.media_nota }}</div>
-                <div class="stat-label">Nota média /10</div>
-              </div>
-              <div class="stat-card orange">
-                <div class="stat-icon">📆</div>
-                <div class="stat-value">{{ stats.comentarios.ultimos_7_dias }}</div>
-                <div class="stat-label">Últimos 7 dias</div>
+          <div class="p-4 rounded-3" style="background:#13131f;border:1px solid #1e1e30">
+            <h2 class="fw-bold mb-3" style="font-size:15px;color:#ddd">💬 Comentários</h2>
+            <div class="row row-cols-2 row-cols-lg-4 g-3">
+              <div class="col" v-for="card in [
+                { color:'#a78bfa,#7c3aed', icon:'💬', value: stats.comentarios.total, label:'Total' },
+                { color:'#667eea,#764ba2', icon:'📅', value: stats.comentarios.hoje, label:'Hoje' },
+                { color:'#34d399,#059669', icon:'⭐', value: stats.comentarios.media_nota, label:'Nota média /10' },
+                { color:'#fb923c,#ea580c', icon:'📆', value: stats.comentarios.ultimos_7_dias, label:'Últimos 7 dias' },
+              ]" :key="card.label">
+                <div class="p-3 rounded-3 position-relative overflow-hidden" style="background:#0d0d14;border:1px solid #1e1e30">
+                  <div class="position-absolute top-0 start-0 end-0" :style="{ height:'3px', background:`linear-gradient(90deg,${card.color})` }"></div>
+                  <div class="mb-2" style="font-size:20px">{{ card.icon }}</div>
+                  <div class="fw-bold text-white mb-1" style="font-size:24px">{{ card.value }}</div>
+                  <div style="font-size:13px;color:#666">{{ card.label }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -295,323 +261,3 @@ const formatDate = (dateStr: string) => {
     </main>
   </div>
 </template>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-.admin-root {
-  display: flex;
-  min-height: 100vh;
-  background: #0d0d14;
-  color: #e8e6f0;
-  font-family: 'DM Sans', sans-serif;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 240px;
-  min-height: 100vh;
-  background: #13131f;
-  border-right: 1px solid #1e1e30;
-  display: flex;
-  flex-direction: column;
-  padding: 24px 16px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 36px;
-  padding: 0 8px;
-}
-
-.logo-icon { font-size: 28px; }
-.logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: #fff; }
-.logo-sub { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
-
-.sidebar-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: none;
-  background: none;
-  color: #888;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s;
-}
-.nav-item:hover { background: #1a1a2e; color: #ccc; }
-.nav-item.active { background: linear-gradient(135deg, #667eea22, #764ba222); color: #a78bfa; font-weight: 500; }
-
-.sidebar-footer { margin-top: auto; }
-
-.admin-badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  background: #1a1a2e;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-size: 13px;
-}
-.admin-name { font-weight: 500; color: #ddd; font-size: 13px; }
-.admin-role { font-size: 11px; color: #666; }
-
-.btn-voltar {
-  width: 100%;
-  padding: 8px;
-  background: none;
-  border: 1px solid #2a2a40;
-  border-radius: 8px;
-  color: #666;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-voltar:hover { color: #aaa; border-color: #3a3a55; }
-
-/* MAIN */
-.main-content {
-  flex: 1;
-  padding: 32px;
-  overflow-y: auto;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-}
-.page-header h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.btn-refresh {
-  padding: 8px 16px;
-  background: #1a1a2e;
-  border: 1px solid #2a2a40;
-  border-radius: 8px;
-  color: #888;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-refresh:hover { color: #a78bfa; border-color: #a78bfa44; }
-
-/* CARDS */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.stat-card {
-  background: #13131f;
-  border: 1px solid #1e1e30;
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s;
-}
-.stat-card:hover { transform: translateY(-2px); }
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-.stat-card.blue::before { background: linear-gradient(90deg, #667eea, #764ba2); }
-.stat-card.purple::before { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
-.stat-card.red::before { background: linear-gradient(90deg, #f87171, #dc2626); }
-.stat-card.green::before { background: linear-gradient(90deg, #34d399, #059669); }
-.stat-card.orange::before { background: linear-gradient(90deg, #fb923c, #ea580c); }
-
-.stat-icon { font-size: 24px; margin-bottom: 12px; }
-.stat-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
-.stat-label { font-size: 13px; color: #666; margin-top: 4px; }
-.stat-sub { font-size: 12px; color: #4ade80; margin-top: 6px; }
-
-/* SECTION CARD */
-.section-card {
-  background: #13131f;
-  border: 1px solid #1e1e30;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-.section-card h2 {
-  font-family: 'Syne', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: #ddd;
-  margin-bottom: 20px;
-}
-
-/* BAR CHART */
-.bar-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  height: 140px;
-  padding-top: 24px;
-}
-.bar-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  justify-content: flex-end;
-  gap: 6px;
-}
-.bar-value { font-size: 12px; color: #888; }
-.bar-fill {
-  width: 100%;
-  background: linear-gradient(180deg, #a78bfa, #667eea);
-  border-radius: 4px 4px 0 0;
-  transition: height 0.5s ease;
-  min-height: 4px;
-}
-.bar-label { font-size: 11px; color: #555; }
-
-/* PROGRESS */
-.progress-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  font-size: 13px;
-  color: #888;
-}
-.progress-bar {
-  flex: 1;
-  height: 8px;
-  background: #1e1e30;
-  border-radius: 999px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.5s ease;
-}
-.green-fill { background: linear-gradient(90deg, #34d399, #059669); }
-.gray-fill { background: #2a2a40; }
-
-/* TABLE */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.data-table th {
-  text-align: left;
-  padding: 8px 12px;
-  color: #555;
-  font-weight: 500;
-  border-bottom: 1px solid #1e1e30;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-}
-.data-table td {
-  padding: 12px;
-  border-bottom: 1px solid #1a1a2a;
-  color: #ccc;
-}
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: #1a1a2e; }
-.muted { color: #666 !important; }
-
-.tipo-badge {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 500;
-}
-.tipo-badge.admin { background: #7c3aed22; color: #a78bfa; }
-.tipo-badge.user { background: #0e4a2a; color: #4ade80; }
-
-/* RANKING */
-.rank-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid #1a1a2a;
-}
-.rank-item:last-child { border-bottom: none; }
-.rank-num {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #1e1e30;
-  color: #666;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.rank-title { flex: 1; font-size: 14px; color: #ccc; }
-.rank-count { font-size: 13px; color: #888; }
-
-.two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-/* ESTADOS */
-.center-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 16px;
-  color: #555;
-}
-.error-state { color: #f87171; }
-.spinner {
-  width: 40px; height: 40px;
-  border: 3px solid #1e1e30;
-  border-top-color: #a78bfa;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.empty { color: #444; font-size: 13px; padding: 16px 0; }
-
-.btn-primary {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .two-cols { grid-template-columns: 1fr; }
-}
-</style>

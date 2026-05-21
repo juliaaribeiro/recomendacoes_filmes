@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setTargetStyle } from '../composables/useHoverStyle'
 import { apiClient } from '../utils/axiosConfig'
 
 const router = useRouter()

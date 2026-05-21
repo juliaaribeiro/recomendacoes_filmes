@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { setCurrentTargetStyle, setTargetStyle } from '../composables/useHoverStyle'
 import { apiClient } from '../utils/axiosConfig'
 
 const router = useRouter()

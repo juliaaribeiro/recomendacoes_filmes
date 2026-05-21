@@ -13,112 +13,72 @@ function handleLogout() {
 </script>
 
 <template>
-  <div id="app" style="display: flex; flex-direction: column; min-height: 100vh; background: radial-gradient(circle at top, #1A1A2E, #0F0F1B); color: #E5E7EB; overflow-x: hidden;">
-    
+  <div id="app" data-bs-theme="dark">
+
     <!-- HEADER -->
-    <header 
+    <header
+      class="sticky-top py-2"
       :style="{
-        position: 'sticky',
-        top: '0',
-        zIndex: '100',
         backdropFilter: 'blur(12px)',
-        background: isLogged 
+        background: isLogged
           ? 'linear-gradient(135deg, rgba(0,198,255,0.2), rgba(123,47,247,0.25))'
-          : 'rgba(15, 15, 27, 0.64)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '12px 0',
-        transition: 'all 0.4s ease'
+          : 'rgba(15,15,27,0.82)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        transition: 'all 0.4s ease',
+        zIndex: 100
       }"
     >
-      <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1600px; width: 100%; margin: 0 auto; padding: 0 32px;">
-        
-        <router-link to="/" style="font-size: 26px; font-weight: 800; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 28px;">🎬</span>
-          <span style="background: linear-gradient(135deg, #FF3CAC, #00C6FF); -webkit-background-clip: text; color: transparent;">
-            MovieFlix
-          </span>
+      <div class="d-flex justify-content-between align-items-center mx-auto px-4" style="max-width:1600px">
+
+        <router-link to="/" class="d-flex align-items-center gap-2 text-decoration-none">
+          <span style="font-size:28px">🎬</span>
+          <span class="fw-bold fs-4 mf-gradient-text">MovieFlix</span>
         </router-link>
 
-        <nav style="display: flex; gap: 20px; align-items: center;">
-          <router-link to="/" style="font-weight: 600;">Home</router-link>
-          <router-link to="/search" style="font-weight: 600;">Buscar</router-link>
+        <nav class="d-flex align-items-center gap-3">
+          <router-link to="/" class="fw-semibold">Home</router-link>
+          <router-link to="/search" class="fw-semibold">Buscar</router-link>
 
           <template v-if="isLogged">
             <router-link to="/meus-favoritos">❤️ Favoritos</router-link>
             <router-link to="/minha-watchlist">📋 Watchlist</router-link>
-            <router-link 
+            <router-link
               v-if="user?.tipo_usuario === 'admin' || user?.is_staff"
               to="/admin-dashboard"
-              style="background: linear-gradient(135deg, #a78bfa, #7c3aed); color: white; padding: 6px 14px; border-radius: 999px; font-weight: 700;"
+              class="btn btn-sm btn-mf-primary px-3"
             >
               ⚙️ Admin
             </router-link>
 
-            <!-- BLOCO DO USUÁRIO (AGORA COM GLASS IGUAL AO HEADER) -->
-            <div 
-              style="
-                margin-left: 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px 14px;
-                border-radius: 999px;
-                backdrop-filter: blur(10px);
-                background: linear-gradient(135deg, rgba(0,198,255,0.25), rgba(123,47,247,0.3));
-                border: 1px solid rgba(255,255,255,0.15);
-                box-shadow: 0 0 12px rgba(0,198,255,0.25);
-                transition: all 0.3s ease;
-              "
+            <!-- Usuário logado -->
+            <div
+              class="d-flex align-items-center gap-2 ms-3 px-3 py-2 rounded-pill"
+              style="backdrop-filter:blur(10px); background:linear-gradient(135deg,rgba(0,198,255,0.25),rgba(123,47,247,0.3)); border:1px solid rgba(255,255,255,0.15); box-shadow:0 0 12px rgba(0,198,255,0.25);"
             >
-              
-              <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #00C6FF, #7B2FF7); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+              <div
+                class="d-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
+                style="width:32px;height:32px;background:linear-gradient(135deg,#00C6FF,#7B2FF7)"
+              >
                 {{ user?.nome?.substring(0,1) || 'U' }}
               </div>
-
-              <span style="font-size: 13px; font-weight: 600;">
-                {{ user?.nome }}
-              </span>
-
-              <button 
-                @click="handleLogout"
-                style="background: linear-gradient(135deg, #FF3CAC, #7B2FF7); color: white; padding: 6px 12px; border: none; border-radius: 999px; font-weight: 700; cursor: pointer;"
-              >
-                Sair
-              </button>
+              <span style="font-size:13px;font-weight:600">{{ user?.nome }}</span>
+              <button @click="handleLogout" class="btn btn-sm btn-mf-primary px-3">Sair</button>
             </div>
           </template>
 
           <template v-else>
-            <router-link 
-              to="/login" 
-              style="background: linear-gradient(135deg, #FF3CAC, #7B2FF7); color: white; padding: 8px 18px; border-radius: 999px; font-weight: 700;"
-            >
-              Login
-            </router-link>
+            <router-link to="/login" class="btn btn-sm btn-mf-primary px-4 py-2">Login</router-link>
           </template>
         </nav>
       </div>
     </header>
 
-    <main style="flex: 1; padding: 40px 20px;">
+    <main class="flex-grow-1 py-5 px-3">
       <RouterView />
     </main>
 
-    <footer style="background-color: #1a202c; color: #a0aec0; padding: 16px; text-align: center;">
-      <p style="font-size: 13px;">&copy; 2026 MovieFlix</p>
+    <footer class="py-3 text-center" style="background:#1a202c;color:#a0aec0;">
+      <p class="mb-0" style="font-size:13px">&copy; 2026 MovieFlix</p>
     </footer>
   </div>
 </template>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-#app {
-  font-family: 'Poppins', sans-serif;
-}
-
-a {
-  color: #E5E7EB;
-  text-decoration: none;
-}
-</style>
