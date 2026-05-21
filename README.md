@@ -1,59 +1,64 @@
 # 🎬 MovieFlix - Sistema de Recomendação de Filmes
 
-Aplicação moderna para descobrir, avaliar e obter recomendações de filmes usando Django, PostgreSQL e Vue.js 3.
+Aplicação para descobrir, avaliar e organizar filmes usando Django REST Framework e Vue.js 3.
 
 ## 🚀 Funcionalidades
 
-### Para Visitantes (Sem Login)
-- ✅ Ver filmes populares em tempo real
-- ✅ Buscar filmes por nome
-- ✅ Visualizar detalhes completos dos filmes
-- ✅ Ver avaliações públicas de outros usuários
-- ✅ Sistema de autenticação (Login/Cadastro)
+### Visitantes (sem login)
+- Ver filmes populares em tempo real
+- Buscar filmes por nome
+- Visualizar detalhes completos dos filmes
+- Ver avaliações públicas de outros usuários
 
-### Para Usuários Logados (Em desenvolvimento)
-- Avaliar filmes (1-10 estrelas) e comentar
-- Adicionar à lista de favoritos
-- Criar watchlist pessoal
-- Receber recomendações personalizadas
-- Ver histórico de interações
+### Usuários logados
+- Avaliar filmes com notas de 1 a 10 e comentar
+- Adicionar e remover favoritos
+- Criar e gerenciar watchlist pessoal
+- Marcar filmes como assistidos
+
+### Administradores
+- Painel com estatísticas de usuários, comentários, favoritos e watchlist
+- Visualização de ranking de filmes mais favoritados
+- Gráfico de cadastros dos últimos 7 dias
 
 ## 🛠️ Stack Tecnológico
 
 ### Backend
-- **Django 6.0** - Framework web
-- **Django REST Framework** - API REST
-- **JWT** - Autenticação segura
-- **SQLite** (Dev) / PostgreSQL (Prod)
-- **CORS** - Integração frontend-backend
+- **Django 6.0** + **Django REST Framework** — API REST
+- **JWT** — Autenticação segura
+- **SQLite** (desenvolvimento) / **PostgreSQL** (produção)
+- **django-grappelli** — Interface admin aprimorada
 
 ### Frontend
-- **Vue.js 3** - Framework JavaScript
-- **TypeScript** - Tipagem estática
-- **Vite** - Build tool ultrarrápido
-- **Vue Router** - Roteamento
-- **Axios** - HTTP Client
-- **Tailwind CSS** - Estilização
+- **Vue.js 3** + **TypeScript** — Framework e tipagem
+- **Vite** — Build tool
+- **Vue Router** — Roteamento
+- **Axios** — HTTP Client
+- **Bootstrap 5** — Framework CSS
 
 ### API Externa
-- **The Movie Database (TMDB)** - Base de dados de filmes
+- **The Movie Database (TMDB)** — Base de dados de filmes
 
 ## 📋 Pré-requisitos
 
-- Python 3.9+
-- Node.js 18+
-- npm ou yarn
-- Chave API do TMDB (gratuita em https://www.themoviedb.org/settings/api)
+- Python 3.12+
+- Node.js 20+
+- Chave de API do TMDB — gratuita em https://www.themoviedb.org/settings/api
 
-## 🔧 Instalação
+## 🔧 Instalação e execução
 
-### 1. Backend Setup
+### Backend
 
 ```bash
-cd c:/Users/Júlia/Desktop/web
+cd recomendacoes_filmes
 
-# Ativar ambiente virtual
-.venv\Scripts\activate
+# Criar e ativar ambiente virtual
+python -m venv venv
+
+# Windows
+.\venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
 
 # Instalar dependências
 pip install -r requirements.txt
@@ -68,9 +73,9 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Servidor roda em: **http://localhost:8000**
+Servidor disponível em: **http://localhost:8000**
 
-### 2. Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
@@ -82,136 +87,114 @@ npm install
 npm run dev
 ```
 
-Servidor roda em: **http://localhost:5173**
+Servidor disponível em: **http://localhost:5173**
 
 ## 📁 Estrutura do Projeto
 
 ```
-web/
+recomendacoes_filmes/
 ├── movie_recommendation/    # Configurações Django
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── users/                   # App de Usuários
-│   ├── models.py
-│   ├── views.py
-│   ├── stats_views.py       # Dashboard de estatísticas (admin)
-│   ├── serializers.py
-│   └── urls.py
-├── movies/                  # App de Filmes (TMDB API)
-├── comments/                # App de Comentários
-├── favorites/               # App de Favoritos
-├── watchlist/               # App de Watchlist
+├── users/                   # Autenticação e perfil de usuários
+├── movies/                  # Integração com a API do TMDB
+├── comments/                # Comentários e avaliações
+├── favorites/               # Favoritos por usuário
+├── watchlist/               # Watchlist por usuário
 ├── frontend/                # Vue.js Frontend
-│   ├── src/
-│   │   ├── components/      # Componentes Vue
-│   │   ├── views/           # Páginas
-│   │   │   └── AdminDashboard.vue  # Painel administrativo
-│   │   ├── router/          # Configuração de rotas
-│   │   ├── composables/     # useAuth, useHoverStyle
-│   │   └── utils/           # axiosConfig, api
-│   └── package.json
+│   └── src/
+│       ├── assets/          # CSS global e utilitários Bootstrap
+│       ├── components/      # Componentes reutilizáveis (MovieCard)
+│       ├── composables/     # useAuth
+│       ├── router/          # Configuração de rotas
+│       ├── utils/           # axiosConfig, api
+│       └── views/           # Páginas da aplicação
 └── manage.py
 ```
 
 ## 🔌 Endpoints da API
 
 ### Usuários
-- `POST /usuarios/cadastro/` - Criar conta
-- `POST /usuarios/login/` - Fazer login
-- `GET /usuarios/perfil/` - Obter perfil (autenticado)
-- `PUT /usuarios/perfil/` - Atualizar perfil (autenticado)
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/usuarios/cadastro/` | Criar conta |
+| POST | `/usuarios/login/` | Fazer login |
+| GET | `/usuarios/perfil/` | Obter perfil |
+| PUT | `/usuarios/perfil/` | Atualizar perfil |
 
 ### Filmes
-- `GET /filmes/populares/` - Filmes populares
-- `GET /filmes/busca/?q=nome` - Buscar filmes
-- `GET /filmes/{id}/` - Detalhes do filme
-- `GET /filmes/trending/` - Filmes em tendência
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/filmes/populares/` | Filmes populares |
+| GET | `/filmes/busca/?q=nome` | Buscar filmes |
+| GET | `/filmes/{id}/` | Detalhes do filme |
 
-### Avaliações (integradas aos comentários)
-- `GET /comentarios/` - Meus comentários/avaliações
-- `POST /comentarios/` - Criar comentário/avaliação (nota opcional 1-10)
-- `PUT /comentarios/{id}/` - Atualizar comentário/avaliação
-- `DELETE /comentarios/{id}/` - Deletar comentário/avaliação
+### Comentários e Avaliações
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/comentarios/` | Listar comentários |
+| POST | `/comentarios/` | Criar comentário com nota (1–10) |
+| PATCH | `/comentarios/{id}/` | Editar comentário |
+| DELETE | `/comentarios/{id}/` | Excluir comentário |
 
-### Favoritos (Autenticado)
-- `GET /favoritos/` - Meus favoritos
-- `POST /favoritos/` - Adicionar favorito
-- `DELETE /favoritos/{id}/` - Remover favorito
+### Favoritos
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/favoritos/` | Listar favoritos |
+| POST | `/favoritos/` | Adicionar favorito |
+| DELETE | `/favoritos/{id}/` | Remover favorito |
 
-### Watchlist (Autenticado)
-- `GET /watchlist/` - Minha watchlist
-- `POST /watchlist/` - Adicionar à watchlist
-- `DELETE /watchlist/{id}/` - Remover da watchlist
+### Watchlist
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/watchlist/` | Listar watchlist |
+| POST | `/watchlist/` | Adicionar à watchlist |
+| PATCH | `/watchlist/{id}/` | Atualizar status (assistido) |
+| DELETE | `/watchlist/{id}/` | Remover da watchlist |
 
-### Admin (Autenticado como admin)
-- `GET /admin-stats/` - Estatísticas do dashboard
+### Admin
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/admin-stats/` | Estatísticas do painel admin |
 
-## 🔑 Variáveis de Ambiente
+## 📝 Rotas do Frontend
 
-Crie um arquivo `.env` na raiz do backend:
-
-```env
-DEBUG=True
-SECRET_KEY=sua-chave-secreta
-TMDB_API_KEY=sua-chave-tmdb
-DATABASE_URL=sqlite:///db.sqlite3
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-## 📝 Rotas Frontend
-
-| Rota | Componente | Descrição |
-|------|-----------|-----------|
-| `/` | HomeView | Home pública - Filmes populares |
-| `/search` | SearchView | Buscar filmes |
+| Rota | View | Descrição |
+|------|------|-----------|
+| `/` | HomeView | Filmes populares |
+| `/search` | SearchView | Busca de filmes |
 | `/movie/:id` | MovieDetailView | Detalhes do filme |
-| `/login` | LoginView | Página de login |
-| `/register` | RegisterView | Página de cadastro |
-| `/meus-favoritos` | FavoritesView | Lista de favoritos |
-| `/minha-watchlist` | WatchlistView | Lista da watchlist |
+| `/login` | LoginView | Login |
+| `/register` | RegisterView | Cadastro |
+| `/meus-favoritos` | FavoritesView | Favoritos do usuário |
+| `/minha-watchlist` | WatchlistView | Watchlist do usuário |
 | `/admin-dashboard` | AdminDashboard | Painel administrativo |
 
-## 🎨 Paleta de Cores
+## 🎨 Identidade Visual
 
-- Primária: Azul (#2563EB)
-- Secundária: Cinza (#6B7280)
-- Sucesso: Verde (#10B981)
-- Erro: Vermelho (#EF4444)
-- Fundo: Claro (#F3F4F6)
+Tema dark com paleta customizada sobre Bootstrap 5:
+
+- Fundo: `#0F0F1B` com gradiente radial
+- Cards: `#1A1A2E`
+- Destaque principal: gradiente `#FF3CAC → #00C6FF`
+- Destaque secundário: gradiente `#7B2FF7 → #00C6FF`
+- Texto: `#E5E7EB`
 
 ## 🚀 Deploy
 
-### Backend (Heroku)
+### Backend — Heroku
 ```bash
-heroku login
-heroku create seu-app-name
+heroku create nome-do-app
 git push heroku main
 ```
 
-### Frontend (Vercel)
+### Frontend — Vercel
 ```bash
 npm run build
-# Fazer deploy de `dist/` folder no Vercel
+# Fazer deploy da pasta dist/ no Vercel
 ```
-
-## 🤝 Contribuições
-
-Para contribuir:
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob licença MIT.
-
-## 📞 Suporte
-
-Para dúvidas ou sugestões, abra uma issue no repositório.
 
 ---
 
-**Desenvolvido com ❤️ usando Django + Vue.js**
+**Desenvolvido com ❤️ usando Django + Vue.js + Bootstrap 5**
