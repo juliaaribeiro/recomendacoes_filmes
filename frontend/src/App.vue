@@ -42,6 +42,7 @@ function handleLogout() {
           <template v-if="isLogged">
             <router-link to="/meus-favoritos">❤️ Favoritos</router-link>
             <router-link to="/minha-watchlist">📋 Watchlist</router-link>
+            <router-link to="/recomendacoes">🤖 Para Você</router-link>
             <router-link
               v-if="user?.tipo_usuario === 'admin' || user?.is_staff"
               to="/admin-dashboard"

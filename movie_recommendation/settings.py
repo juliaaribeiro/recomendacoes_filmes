@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config  
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,14 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n_1+jegu9-)3^9#6_e%2-3(pj+5_v+=v^9o34p17t(k91%ec-1'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
+GEMINI_API_KEY = config('GEMINI_API_KEY')
+TMDB_API_KEY = config('VITE_TMDB_API_KEY')
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
     'comments',
     'favorites',
     'watchlist',
+    'recommendations',
 ]
 
 AUTH_USER_MODEL = 'users.User'

@@ -6,6 +6,7 @@ import MovieDetailView from '../views/MovieDetailView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import SearchView from '../views/SearchView.vue'
 import WatchlistView from '../views/WatchlistView.vue'
+import RecommendationsView from '../views/RecommendationsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,6 +48,11 @@ const router = createRouter({
     },
     { path: '/admin-dashboard', 
       component: () => import('../views/AdminDashboard.vue') 
+    },
+    {
+      path: '/recomendacoes',
+      name: 'recommendations',
+      component: RecommendationsView,
     },
   ],
 })

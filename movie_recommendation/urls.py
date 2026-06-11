@@ -32,4 +32,5 @@ urlpatterns = [
     path('comentarios/', include('comments.urls')),
     path('favoritos/', include('favorites.urls')),
     path('watchlist/', include('watchlist.urls')),
+    path('recomendacoes/', include('recommendations.urls')),
 ]

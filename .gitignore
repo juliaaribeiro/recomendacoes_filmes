@@ -40,7 +40,6 @@ pnpm-lock.yaml
 
 # Local environment files
 .env
-.env.*
 *.env
 local_settings.py
 
