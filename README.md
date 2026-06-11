@@ -1,6 +1,6 @@
 # 🎬 MovieFlix - Sistema de Recomendação de Filmes
 
-Aplicação para descobrir, avaliar e organizar filmes usando Django REST Framework e Vue.js 3.
+Aplicação para descobrir, avaliar e organizar filmes usando Django REST Framework e Vue.js 3, com recomendações personalizadas geradas por IA.
 
 ## 🚀 Funcionalidades
 
@@ -15,6 +15,7 @@ Aplicação para descobrir, avaliar e organizar filmes usando Django REST Framew
 - Adicionar e remover favoritos
 - Criar e gerenciar watchlist pessoal
 - Marcar filmes como assistidos
+- **Receber recomendações personalizadas por IA** com base nos próprios favoritos, watchlist e avaliações
 
 ### Administradores
 - Painel com estatísticas de usuários, comentários, favoritos e watchlist
@@ -28,6 +29,8 @@ Aplicação para descobrir, avaliar e organizar filmes usando Django REST Framew
 - **JWT** — Autenticação segura
 - **SQLite** (desenvolvimento) / **PostgreSQL** (produção)
 - **django-grappelli** — Interface admin aprimorada
+- **Google Gemini API** — Geração de recomendações por IA
+- **Cache do Django** — Recomendações armazenadas por 30 minutos
 
 ### Frontend
 - **Vue.js 3** + **TypeScript** — Framework e tipagem
@@ -36,22 +39,29 @@ Aplicação para descobrir, avaliar e organizar filmes usando Django REST Framew
 - **Axios** — HTTP Client
 - **Bootstrap 5** — Framework CSS
 
-### API Externa
-- **The Movie Database (TMDB)** — Base de dados de filmes
+### APIs Externas
+- **The Movie Database (TMDB)** — Base de dados de filmes e posters
+- **Google Gemini** — IA para recomendações personalizadas (gratuito)
 
 ## 📋 Pré-requisitos
 
 - Python 3.12+
 - Node.js 20+
 - Chave de API do TMDB — gratuita em https://www.themoviedb.org/settings/api
+- Chave de API do Gemini — gratuita em https://aistudio.google.com/apikey
 
 ## 🔧 Instalação e execução
 
-### Backend
+### 1. Clone o repositório
 
 ```bash
+git clone <url-do-repositorio>
 cd recomendacoes_filmes
+```
 
+### 2. Backend
+
+```bash
 # Criar e ativar ambiente virtual
 python -m venv venv
 
@@ -63,6 +73,20 @@ source venv/bin/activate
 # Instalar dependências
 pip install -r requirements.txt
 
+# Configurar variáveis de ambiente
+cp .env.example .env
+# Edite o .env com suas chaves
+```
+
+Edite o arquivo `.env` na raiz do projeto:
+
+```env
+SECRET_KEY=sua-secret-key-django
+TMDB_API_KEY=sua-chave-tmdb
+GEMINI_API_KEY=sua-chave-gemini
+```
+
+```bash
 # Aplicar migrações
 python manage.py migrate
 
@@ -75,11 +99,24 @@ python manage.py runserver
 
 Servidor disponível em: **http://localhost:8000**
 
-### Frontend
+### 3. Frontend
 
 ```bash
 cd frontend
 
+# Configurar variáveis de ambiente
+cp .env.example .env
+# Edite o .env com sua chave do TMDB
+```
+
+Edite o arquivo `frontend/.env`:
+
+```env
+VITE_TMDB_API_KEY=sua-chave-tmdb
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+```bash
 # Instalar dependências
 npm install
 
@@ -89,29 +126,46 @@ npm run dev
 
 Servidor disponível em: **http://localhost:5173**
 
+> ⚠️ O frontend possui seu próprio `.env`, separado do backend. Ambos os arquivos estão no `.gitignore` — use os `.env.example` como referência.
+
 ## 📁 Estrutura do Projeto
 
 ```
 recomendacoes_filmes/
-├── movie_recommendation/    # Configurações Django
+├── .env.example               # Variáveis de ambiente do backend (referência)
+├── .env                       # Variáveis reais — NÃO sobe para o git
+├── movie_recommendation/      # Configurações Django
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── users/                   # Autenticação e perfil de usuários
-├── movies/                  # Integração com a API do TMDB
-├── comments/                # Comentários e avaliações
-├── favorites/               # Favoritos por usuário
-├── watchlist/               # Watchlist por usuário
-├── frontend/                # Vue.js Frontend
+├── users/                     # Autenticação e perfil de usuários
+├── movies/                    # Integração com a API do TMDB
+├── comments/                  # Comentários e avaliações
+├── favorites/                 # Favoritos por usuário
+├── watchlist/                 # Watchlist por usuário
+├── recommendations/           # Recomendações personalizadas por IA
+│   ├── views.py               # Consulta o banco + chama o Gemini
+│   └── urls.py
+├── frontend/                  # Vue.js Frontend
+│   ├── .env.example           # Variáveis de ambiente do frontend (referência)
+│   ├── .env                   # Variáveis reais — NÃO sobe para o git
 │   └── src/
-│       ├── assets/          # CSS global e utilitários Bootstrap
-│       ├── components/      # Componentes reutilizáveis (MovieCard)
-│       ├── composables/     # useAuth
-│       ├── router/          # Configuração de rotas
-│       ├── utils/           # axiosConfig, api
-│       └── views/           # Páginas da aplicação
+│       ├── assets/            # CSS global e utilitários Bootstrap
+│       ├── components/        # Componentes reutilizáveis (MovieCard)
+│       ├── composables/       # useAuth
+│       ├── router/            # Configuração de rotas
+│       ├── utils/             # axiosConfig, api
+│       └── views/             # Páginas da aplicação
 └── manage.py
 ```
+
+## 🤖 Como funcionam as recomendações
+
+1. O backend faz SELECT nos favoritos, watchlist e avaliações do usuário logado
+2. Monta um perfil de gosto cinematográfico e envia para o **Gemini 2.5 Flash**
+3. A IA retorna 5 filmes recomendados em JSON com título, ano, gênero e motivo personalizado
+4. O frontend busca o poster de cada filme na API do TMDB e exibe os cards
+5. O resultado fica em **cache por 30 minutos** — clicar em "Gerar novas recomendações" força uma nova chamada à IA
 
 ## 🔌 Endpoints da API
 
@@ -153,6 +207,12 @@ recomendacoes_filmes/
 | PATCH | `/watchlist/{id}/` | Atualizar status (assistido) |
 | DELETE | `/watchlist/{id}/` | Remover da watchlist |
 
+### Recomendações
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/recomendacoes/` | Recomendações personalizadas (cache 30 min) |
+| GET | `/recomendacoes/?force=true` | Forçar nova geração pela IA |
+
 ### Admin
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -169,6 +229,7 @@ recomendacoes_filmes/
 | `/register` | RegisterView | Cadastro |
 | `/meus-favoritos` | FavoritesView | Favoritos do usuário |
 | `/minha-watchlist` | WatchlistView | Watchlist do usuário |
+| `/recomendacoes` | RecommendationsView | Recomendações por IA |
 | `/admin-dashboard` | AdminDashboard | Painel administrativo |
 
 ## 🎨 Identidade Visual
@@ -186,6 +247,7 @@ Tema dark com paleta customizada sobre Bootstrap 5:
 ### Backend — Heroku
 ```bash
 heroku create nome-do-app
+heroku config:set SECRET_KEY=... TMDB_API_KEY=... GEMINI_API_KEY=...
 git push heroku main
 ```
 
@@ -193,8 +255,9 @@ git push heroku main
 ```bash
 npm run build
 # Fazer deploy da pasta dist/ no Vercel
+# Configurar as variáveis VITE_* no painel do Vercel
 ```
 
 ---
 
-**Desenvolvido com ❤️ usando Django + Vue.js + Bootstrap 5**
+**Desenvolvido com ❤️ usando Django + Vue.js + Bootstrap 5 + Gemini AI**
